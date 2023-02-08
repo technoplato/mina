@@ -6,7 +6,8 @@
   "private": true,
   "gypfile": true,
   "scripts": {
-    "start": "electron src/main.js",
+    "_start": "electron src/main.js",
+    "start": "nodemon --watch src --exec electron src/main.js",
     "build": "npm install",
     "build-verbose": "npm install --verbose",
     "test": "node test.js"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/audioworklet": "^0.0.36",
     "eslint": "^8.30.0",
-    "prettier": "^2.8.1"
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.4"
   }
 }

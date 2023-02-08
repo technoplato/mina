@@ -48,6 +48,18 @@ function startRecording() {
 
 startRecording()
 
+const ignoredText = [
+  '(buzzer)',
+  ' (buzzer)',
+  '[buzzer]',
+  ' (buzzer buzzing)',
+  ' (static)',
+]
+
+const shouldIgnore = (text) => {
+  return ignoredText.includes(text)
+}
+
 /** Update view. */
 const texts = document.getElementById('texts')
 const textUpdateInterval = setInterval(async () => {
@@ -56,9 +68,11 @@ const textUpdateInterval = setInterval(async () => {
 
   for (let i = 0; i < result.msgs.length; i++) {
     const msg = result.msgs[i]
-    const lastText = texts.lastChild
+    if (shouldIgnore(msg.text)) continue
+    console.log(JSON.stringify(msg, null, 2))
+    const lastTextNode = texts.lastChild
 
-    if (!lastText || lastText.dataset.partial === 'false') {
+    if (!lastTextNode || lastTextNode.dataset.partial === 'false') {
       const text = document.createElement('div')
       text.innerText = msg.text
       text.classList.add('text')
@@ -71,16 +85,29 @@ const textUpdateInterval = setInterval(async () => {
       }
       texts.append(text)
     } else {
-      lastText.innerText = msg.text
+      lastTextNode.innerText = msg.text
       if (!msg.isPartial) {
-        lastText.style.color = 'black'
-        lastText.dataset.partial = 'false'
+        lastTextNode.style.color = 'black'
+        lastTextNode.dataset.partial = 'false'
       }
     }
 
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: 'smooth',
-    })
+    // window.scrollTo({
+    //   top: document.body.scrollHeight,
+    //   behavior: 'smooth',
+    // })
+    // Check if the user has scrolled up
+
+    const x = document.body.scrollHeight - window.scrollY - window.innerHeight
+    const howFarAwayFromBottomWhereWeShouldScroll = 100
+    console.log({ x })
+    const shouldAutoScroll =
+      Math.abs(x) < howFarAwayFromBottomWhereWeShouldScroll
+    if (shouldAutoScroll) {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
   }
 }, 300)

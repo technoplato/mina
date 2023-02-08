@@ -20,11 +20,13 @@ const createWindow = () => {
   win.webContents.openDevTools()
 }
 
+const models = {
+  base: 'base',
+}
+const modelPath = `../whisper.cpp/models/ggml-${models.base}.en.bin`
+
 app.whenReady().then(() => {
-  const kModelFile = path.join(
-    __dirname,
-    '../whisper.cpp/models/ggml-base.en.bin'
-  )
+  const kModelFile = path.join(__dirname, modelPath)
   if (!fs.existsSync(kModelFile)) {
     console.error('Cannot find whisper model file. Abort.')
     process.exit(1)
