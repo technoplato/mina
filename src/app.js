@@ -8,6 +8,7 @@ const kSampleRate = 16000
 let context
 
 async function showMediaDevices() {
+  console.log('showMediaDevices')
   const devices = await navigator.mediaDevices.enumerateDevices()
   console.log(devices)
 }
