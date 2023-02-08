@@ -54,10 +54,23 @@ const ignoredText = [
   '[buzzer]',
   ' (buzzer buzzing)',
   ' (static)',
+  '[BLANK_AUDIO]',
+  ' [BLANK_AUDIO]',
+  '[ Pause ]',
+  ' [ Inaudible ]',
+  ' [ Pause ]',
+  ' [ silence ]',
+  ' [ Silence ]',
 ]
 
+// const shouldIgnore = (text) => {
+//   return ignoredText.includes(text)
+// }
+
+const regex = /\s?\[?(buzzer|BLANK_AUDIO|Pause|Inaudible|silence)\]?\s?/i
+
 const shouldIgnore = (text) => {
-  return ignoredText.includes(text)
+  return regex.test(text)
 }
 
 /** Update view. */
