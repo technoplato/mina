@@ -16,6 +16,9 @@ const createWindow = () => {
     },
   })
 
+  win.setAlwaysOnTop(true)
+  win.setVisibleOnAllWorkspaces(true)
+
   win.loadFile('index.html')
   win.webContents.openDevTools()
 }
