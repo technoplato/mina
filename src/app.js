@@ -39,7 +39,11 @@ function startRecording() {
       const { recordBuffer, sampleRate, currentFrame } = e.data
       // console.log("from worklet:", recordBuffer, sampleRate, currentFrame);
       if (recordBuffer[0].length === 0) return
-      window.electronAPI.invoke('add-audio-data', recordBuffer[0])
+      console.log('from worklet:', recordBuffer[0])
+      window.electronAPI.invoke(
+        /*TODO: fix require not defiend and import this*/ 'add-audio-data',
+        recordBuffer[0]
+      )
     }
     source.connect(worklet)
     worklet.connect(context.destination)
@@ -105,17 +109,12 @@ const textUpdateInterval = setInterval(async () => {
       }
     }
 
-    // window.scrollTo({
-    //   top: document.body.scrollHeight,
-    //   behavior: 'smooth',
-    // })
-    // Check if the user has scrolled up
-
-    const x = document.body.scrollHeight - window.scrollY - window.innerHeight
+    const distanceFromBottom = Math.abs(
+      document.body.scrollHeight - window.scrollY - window.innerHeight
+    )
     const howFarAwayFromBottomWhereWeShouldScroll = 100
-    console.log({ x })
     const shouldAutoScroll =
-      Math.abs(x) < howFarAwayFromBottomWhereWeShouldScroll
+      distanceFromBottom < howFarAwayFromBottomWhereWeShouldScroll
     if (shouldAutoScroll) {
       window.scrollTo({
         top: document.body.scrollHeight,
