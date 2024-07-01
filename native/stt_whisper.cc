@@ -1,6 +1,5 @@
 #include "stt_whisper.h"
-#include "../whisper.cpp/whisper.h"
-// # mine
+#include "whisper.h"// # mine
 
 #include <atomic>
 #include <cmath>
@@ -74,7 +73,8 @@ bool vad_simple(std::vector<float>& pcmf32, int sample_rate, int last_ms, float 
 
 RealtimeSttWhisper::RealtimeSttWhisper(const std::string& path_model)
 {
-  ctx = whisper_init_from_file(path_model.c_str());
+  struct whisper_context_params cparams = whisper_context_default_params();
+  ctx = whisper_init_from_file_with_params(path_model.c_str(), cparams);
   if (ctx == nullptr) {
     fprintf(stderr, "Failed to initialize whisper context\n");
     return;

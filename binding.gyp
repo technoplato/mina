@@ -3,8 +3,8 @@
     {
       "target_name": "addon",
       "sources": [
-        "whisper.cpp/ggml.c",
-        "whisper.cpp/whisper.cpp",
+        "whisper.cpp/ggml/src/ggml.c",
+        "whisper.cpp/src/whisper.cpp",
         "native/stt_whisper.cc",
         "native/addon.cc"
       ],
@@ -15,14 +15,18 @@
         "-fno-exceptions"
       ],
       "cflags": [
-        "-std=c11"
+        "-std=c11",
+        "-O3"
       ],
       "cflags_cc": [
-        "-std=c++11"
+        "-std=c++11",
+        "-O3"
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
-        "whisper.cpp"
+        "whisper.cpp",
+        "whisper.cpp/ggml/include",
+        "whisper.cpp/include"
       ],
       "dependencies": [
         "<!(node -p \"require('node-addon-api').gyp\")"
@@ -51,10 +55,12 @@
               "MACOSX_DEPLOYMENT_TARGET": "10.7",
               "OTHER_CFLAGS": [
                 "-DGGML_USE_ACCELERATE",
+                "-O3",
                 "-std=c11"
               ],
               "OTHER_CPLUSPLUSFLAGS": [
-                "-std=c++11"
+                "-std=c++11",
+                "-O3"
               ],
               "OTHER_LDFLAGS": [
                 "-framework Accelerate"
