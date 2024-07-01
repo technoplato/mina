@@ -71,6 +71,23 @@
     "functional": "cpp",
     "numeric": "cpp",
     "random": "cpp",
-    "regex": "cpp"
+    "regex": "cpp",
+    "__verbose_abort": "cpp",
+    "any": "cpp",
+    "charconv": "cpp",
+    "codecvt": "cpp",
+    "condition_variable": "cpp",
+    "csignal": "cpp",
+    "execution": "cpp",
+    "forward_list": "cpp",
+    "iostream": "cpp",
+    "list": "cpp",
+    "print": "cpp",
+    "queue": "cpp",
+    "set": "cpp",
+    "source_location": "cpp",
+    "span": "cpp",
+    "unordered_set": "cpp",
+    "valarray": "cpp"
   }
 }
