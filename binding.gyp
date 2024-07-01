@@ -4,6 +4,9 @@
       "target_name": "addon",
       "sources": [
         "whisper.cpp/ggml/src/ggml.c",
+        "whisper.cpp/ggml/src/ggml-alloc.c",
+        "whisper.cpp/ggml/src/ggml-backend.c",
+        "whisper.cpp/ggml/src/ggml-quants.c",
         "whisper.cpp/src/whisper.cpp",
         "native/stt_whisper.cc",
         "native/addon.cc"
@@ -16,11 +19,13 @@
       ],
       "cflags": [
         "-std=c11",
-        "-O3"
+        "-O3",
+        "-DGGML_USE_ACCELERATE"
       ],
       "cflags_cc": [
         "-std=c++11",
-        "-O3"
+        "-O3",
+        "-DGGML_USE_ACCELERATE"
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
@@ -33,7 +38,8 @@
       ],
       "defines": [
         "NAPI_DISABLE_CPP_EXCEPTIONS",
-        "WHISPER_SHARED=1"
+        "WHISPER_SHARED=1",
+        "GGML_USE_ACCELERATE"
       ],
       "conditions": [
         [
