@@ -13,7 +13,9 @@
     "build-verbose": "npm install --verbose",
     "test": "node test.js",
     "update:whisper": "git submodule update --remote whisper.cpp",
-    "node": "node main.js"
+    "node": "node main.js",
+    "clean": "node-gyp clean",
+    "rebuild": "node-gyp rebuild"
   },
   "dependencies": {
     "bindings": "*",

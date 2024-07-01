@@ -1,5 +1,5 @@
 #include "stt_whisper.h"
-#include "whisper.h"
+#include "../whisper.cpp/whisper.h"
 
 #include <atomic>
 #include <cmath>
@@ -73,7 +73,11 @@ bool vad_simple(std::vector<float>& pcmf32, int sample_rate, int last_ms, float 
 
 RealtimeSttWhisper::RealtimeSttWhisper(const std::string& path_model)
 {
-  ctx = whisper_init(path_model.c_str());
+  ctx = whisper_init_from_file(path_model.c_str());
+  if (ctx == nullptr) {
+    fprintf(stderr, "Failed to initialize whisper context\n");
+    return;
+  }
   is_running = true;
   worker = std::thread(&RealtimeSttWhisper::Run, this);
   t_last_iter = std::chrono::high_resolution_clock::now();
@@ -240,8 +244,9 @@ void RealtimeSttWhisper::Run()
       if (pcmf32.size() > n_samples_iter_threshold || speech_has_end) {
         const auto t_now = std::chrono::high_resolution_clock::now();
         const auto t_diff = std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_last_iter).count();
-        printf("iter took: %ldms\n", t_diff);
+        printf("iter took: %lldms\n", static_cast<long long>(t_diff));
         t_last_iter = t_now;
+
 
         msg.is_partial = false;
         /**
