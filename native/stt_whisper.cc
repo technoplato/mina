@@ -234,8 +234,8 @@ void RealtimeSttWhisper::Run()
         std::vector<float> pcmf32_window(pcmf32.end() - n_samples_vad_window, pcmf32.end());
         speech_has_end = vad_simple(pcmf32_window, WHISPER_SAMPLE_RATE, vad_last_ms,
                                     vad_thold, freq_thold, false);
-        if (speech_has_end)
-          printf("speech end detected\n");
+        // if (speech_has_end)
+          // printf("speech end detected\n");
       }
 
       /**
