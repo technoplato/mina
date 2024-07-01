@@ -9,17 +9,18 @@ const { CH_ADD_AUDIO_DATA, CH_GET_TRANSCRIBED } = require('./ipc')
 
 const createWindow = () => {
   const win = new BrowserWindow({
-    width: 1000,
+    width: 400,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   })
 
-  win.setAlwaysOnTop(true)
+  // win.setAlwaysOnTop(true)
   win.setVisibleOnAllWorkspaces(true)
 
   win.loadFile('index.html')
+
   win.webContents.openDevTools()
 }
 
@@ -47,7 +48,12 @@ app.whenReady().then(() => {
     }
   })
 
+  // ipcMain.handle('text-command', )
+
   ipcMain.handle(CH_GET_TRANSCRIBED, () => {
+    // const currentWVjindow = remote.getCurrentWindow()
+    // currentWindow.focus()
+
     return stt.getTranscribed()
   })
 

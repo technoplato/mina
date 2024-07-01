@@ -90,7 +90,7 @@ class RecorderProcessor extends AudioWorkletProcessor {
         error(e, { channel, inputs, outputs, input, output })
       }
     }
-    
+
     if (this.buffer[0].length >= this.reportSize) {
       const recordBuffer = []
       for (let channel = 0; channel < this.buffer.length; channel++) {

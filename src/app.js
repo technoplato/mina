@@ -4,8 +4,26 @@ window.OfflineAudioContext =
 
 const kSampleRate = 16000
 let seconds = 0
+let timestamp = ''
 const info = document.getElementById('info')
-info.innerText = 'Loading...'
+info.innerText = '⚠️ wait'
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+
+    let textElements = document.getElementsByClassName('text');
+    for (let i = 0; i < textElements.length; i++) {
+        textElements[i].classList.toggle('dark-mode');
+    }
+}
+
+document.addEventListener('keydown', function(event) {
+    // Check if either the control or command key was pressed along with the D key
+    if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
+        toggleDarkMode();
+    }
+});
+
 
 /** @type {AudioContext} */
 let context
@@ -32,8 +50,26 @@ function startRecording() {
   navigator.mediaDevices.getUserMedia({ audio: true }).then(async (stream) => {
     setInterval(() => {
       seconds = seconds + 1
-      info.innerText = seconds
-    }, 1000)
+      // info.innerText = formatSecondsAsTimestamp(seconds)
+      // Format the milliseconds a timestamp
+      // The timestamp should look like this - February 19, 2023 - 21:30:42.223
+      // create a new Date object with the current date and time
+      const now = new Date()
+
+      // get the month, day, year, hour, minute, second, and millisecond values from the Date object
+      const month = now.toLocaleString('default', { month: 'long' })
+      const day = now.getDate()
+      const year = now.getFullYear()
+      const hour = now.getHours()
+      const minute = now.getMinutes()
+      const second = now.getSeconds()
+      const millisecond = now.getMilliseconds()
+
+      // format the timestamp
+      timestamp = `${month} ${day}, ${year} - ${hour}:${minute}:${second}.${millisecond}`
+
+      info.innerText = timestamp
+    }, 1)
     info.innerText = ''
     await context.audioWorklet.addModule('recorderWorklet.js')
     const source = new MediaStreamAudioSourceNode(context, {
@@ -68,7 +104,7 @@ function isSurroundedByBrackets(input) {
  * A function that returns true if the input is surrounded by [] or []
  */
 function shouldIgnore(input) {
-  return isSurroundedByBrackets(input)
+  return isSurroundedByBrackets(input) || input.length === 1
 }
 
 /** Update view. */
@@ -92,22 +128,33 @@ const textUpdateInterval = setInterval(async () => {
     // console.log(JSON.stringify(msg, null, 2))
     const lastTextNode = texts.lastChild
 
-    if (!lastTextNode || lastTextNode.dataset.partial === 'false') {
-      const text = document.createElement('div')
-      text.innerText = seconds + '\t' + msg.text
-      text.classList.add('text')
-      if (msg.isPartial) {
-        text.style.color = '#256FEF'
+if (!lastTextNode || lastTextNode.dataset.partial === 'false') {
+    const text = document.createElement('div')
+    text.innerText = msg.text
+    text.classList.add('text')
+    if (document.body.classList.contains('dark-mode')) {
+        text.classList.add('dark-mode');
+    }
+    if (msg.isPartial) {
         text.dataset.partial = 'true'
-      } else {
-        text.style.color = '#000000'
-        text.dataset.partial = 'false'
-      }
-      texts.append(text)
     } else {
-      lastTextNode.innerText = seconds + '\t' + msg.text
+        text.dataset.partial = 'false'
+    }
+    texts.append(text)
+}
+ else {
+      lastTextNode.innerText =
+        // timestamp +
+        '\n' + msg.text
 
       if (!msg.isPartial) {
+        try {
+          navigator.clipboard.writeText(msg.text)
+        } catch (err) {
+          console.error('Failed to copy: ', err)
+        }
+
+        console.log("lastTextNode.style.color = 'black'")
         lastTextNode.style.color = 'black'
         lastTextNode.dataset.partial = 'false'
       }
@@ -136,7 +183,6 @@ function search() {
   const query = searchBox.value.trim().toLowerCase()
   const textElements = document.querySelectorAll('#texts .text')
 
-  console.log({ query, textElements })
   textElements.forEach((textElement) => {
     const text = textElement.innerText.trim().toLowerCase()
     if (text.includes(query)) {
@@ -148,3 +194,28 @@ function search() {
     }
   })
 }
+// const { remote } = require('electron')
+// const fs = remote.require('fs')
+// const { app } = require('electron')
+// const fs = require('fs')
+
+// Listen for the before-quit event to save the transcript data to a file
+/**
+ * This code listens for the before-quit event on the app module, and then retrieves the transcript data from the texts
+ * element using the innerText property. It then generates a filename based on the current timestamp, writes the
+ * transcript data to a file using the fs.writeFile() method, and logs a message to the console indicating whether the
+ * operation was successful.
+ */
+// app.on('before-quit', () => {
+//   const transcriptData = document.getElementById('texts').innerText
+//   const date = new Date()
+//   const filename = `transcript_${date.getTime()}.txt`
+
+//   fs.writeFile(filename, transcriptData, (err) => {
+//     if (err) {
+//       console.error(`Failed to save transcript data to ${filename}:`, err)
+//     } else {
+//       console.log(`Transcript data saved to ${filename}`)
+//     }
+//   })
+// })
