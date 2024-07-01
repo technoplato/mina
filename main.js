@@ -66,7 +66,6 @@ function getTranscription() {
 
     if (!lastMsg.isPartial) {
       console.log(lastMsg.text)
-      console.log('pauseCopying:', pauseCopying)
       if (!pauseCopying) {
         const currentClipboard = clipboard.readSync()
 
