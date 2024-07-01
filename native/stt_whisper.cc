@@ -61,7 +61,7 @@ bool vad_simple(std::vector<float>& pcmf32, int sample_rate, int last_ms, float 
   energy_last /= n_samples_last;
 
   if (verbose) {
-    fprintf(stderr, "%s: energy_all: %f, energy_last: %f, vad_thold: %f, freq_thold: %f\n", __func__, energy_all, energy_last, vad_thold, freq_thold);
+    // fprintf(stderr, "%s: energy_all: %f, energy_last: %f, vad_thold: %f, freq_thold: %f\n", __func__, energy_all, energy_last, vad_thold, freq_thold);
   }
 
   if ((energy_all < 0.0001f && energy_last < 0.0001f) || energy_last > vad_thold * energy_all) {

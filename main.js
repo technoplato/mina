@@ -16,7 +16,7 @@ const modelPath = path.join(
   __dirname,
   'whisper.cpp',
   'models',
-  `ggml-${models.tiny}.bin`
+  `ggml-${models.base}.bin`
 )
 
 if (!fs.existsSync(modelPath)) {
@@ -60,12 +60,13 @@ function getTranscription() {
   const result = stt.getTranscribed()
   if (result && result.msgs && result.msgs.length > 0) {
     const lastMsg = result.msgs[result.msgs.length - 1]
-    if (lastMsg.text.toLowerCase().includes('pause copy')) {
+    if (lastMsg.text.toLowerCase().includes('pause copying')) {
       pauseCopying = !pauseCopying
     }
 
     if (!lastMsg.isPartial) {
       console.log(lastMsg.text)
+      console.log('pauseCopying:', pauseCopying)
       if (!pauseCopying) {
         const currentClipboard = clipboard.readSync()
 
@@ -94,8 +95,11 @@ v.addListener(function (e, down) {
     e.name === 'V' &&
     (down['LEFT META'] || down['RIGHT META'])
   ) {
-    clipboard.writeSync('') // Clear the clipboard
-    console.log('Clipboard cleared')
+    console.log('pauseCopying:', pauseCopying)
+    if (!pauseCopying) {
+      clipboard.writeSync('') // Clear the clipboard
+      console.log('Clipboard cleared')
+    }
     return /* dont consume event, let the system do that */ false
   }
 })
