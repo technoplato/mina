@@ -12,6 +12,7 @@ const models = {
   base: 'base.en',
   large: 'large',
 }
+
 const modelPath = path.join(
   __dirname,
   'whisper.cpp',
@@ -30,8 +31,8 @@ const kSampleRate = 16000
 // Audio recording logic
 const microphone = new mic()
 const micStream = microphone.startRecording()
-
 const reader = new wav.Reader()
+
 reader.on('format', (format) => {
   console.log('WAV format:', format)
 })
@@ -56,6 +57,11 @@ function processAudioData(audioData) {
 }
 
 let pauseCopying = false
+
+function containsBracketsOrParentheses(text) {
+  return /[\[\]()]/.test(text)
+}
+
 function getTranscription() {
   const result = stt.getTranscribed()
   if (result && result.msgs && result.msgs.length > 0) {
@@ -63,12 +69,10 @@ function getTranscription() {
     if (lastMsg.text.toLowerCase().includes('pause copying')) {
       pauseCopying = !pauseCopying
     }
-
-    if (!lastMsg.isPartial) {
+    if (!lastMsg.isPartial && !containsBracketsOrParentheses(lastMsg.text)) {
       console.log(lastMsg.text)
       if (!pauseCopying) {
         const currentClipboard = clipboard.readSync()
-
         clipboard.writeSync(currentClipboard + lastMsg.text)
       }
     }
