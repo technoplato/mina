@@ -7,6 +7,10 @@ const wav = require('wav')
 const { GlobalKeyboardListener } = require('node-global-key-listener')
 const v = new GlobalKeyboardListener()
 
+function debugLog(message) {
+  // console.log(`[DEBUG] ${new Date().toISOString()}: ${message}`)
+}
+
 const models = {
   tiny: 'tiny.en',
   base: 'base.en',
@@ -25,20 +29,22 @@ if (!fs.existsSync(modelPath)) {
   process.exit(1)
 }
 
+debugLog(`Using model: ${modelPath}`)
+
 const stt = new RealtimeSttWhisper(modelPath)
 const kSampleRate = 16000
 
-// Audio recording logic
+debugLog('Initializing audio recording')
 const microphone = new mic()
 const micStream = microphone.startRecording()
 const reader = new wav.Reader()
 
 reader.on('format', (format) => {
-  console.log('WAV format:', format)
+  debugLog(`WAV format: ${JSON.stringify(format)}`)
 })
 
 reader.on('data', (buffer) => {
-  // Convert buffer to Float32Array
+  debugLog(`Received audio data: ${buffer.length} bytes`)
   const floatData = new Float32Array(buffer.length / 2)
   for (let i = 0; i < buffer.length / 2; i++) {
     floatData[i] = buffer.readInt16LE(i * 2) / 32768.0
@@ -53,6 +59,7 @@ micStream.on('error', (error) => {
 })
 
 function processAudioData(audioData) {
+  debugLog(`Processing audio data: ${audioData.length} samples`)
   stt.addAudioData(audioData)
 }
 
@@ -64,25 +71,34 @@ function containsBracketsOrParentheses(text) {
 
 function getTranscription() {
   const result = stt.getTranscribed()
+  debugLog(
+    `Received ${result.msgs ? result.msgs.length : 0} transcribed messages`
+  )
   if (result && result.msgs && result.msgs.length > 0) {
-    const lastMsg = result.msgs[result.msgs.length - 1]
-    if (lastMsg.text.toLowerCase().includes('pause copying')) {
-      pauseCopying = !pauseCopying
-    }
-    if (!lastMsg.isPartial && !containsBracketsOrParentheses(lastMsg.text)) {
-      console.log(lastMsg.text)
-      if (!pauseCopying) {
-        const currentClipboard = clipboard.readSync()
-        clipboard.writeSync(currentClipboard + lastMsg.text)
+    result.msgs.forEach((msg, index) => {
+      debugLog(`Message ${index + 1}: ${JSON.stringify(msg)}`)
+      if (msg.text.toLowerCase().includes('pause copying')) {
+        pauseCopying = !pauseCopying
+        debugLog(`Pause copying toggled: ${pauseCopying}`)
       }
-    }
+      if (!msg.isPartial && !containsBracketsOrParentheses(msg.text)) {
+        console.log(msg.text)
+        if (!pauseCopying) {
+          const currentClipboard = clipboard.readSync()
+          clipboard.writeSync(currentClipboard + msg.text)
+          debugLog(`Added to clipboard: "${msg.text}"`)
+        }
+      }
+    })
+  } else {
+    debugLog('No transcribed messages received')
   }
 }
 
 setInterval(getTranscription, 300)
 
-// Clean up on exit
 process.on('SIGINT', () => {
+  debugLog('Received SIGINT, cleaning up')
   microphone.stopRecording()
   stt.destroy()
   process.exit()
@@ -98,10 +114,12 @@ v.addListener(function (e, down) {
     e.name === 'V' &&
     (down['LEFT META'] || down['RIGHT META'])
   ) {
+    debugLog('Keyboard shortcut detected: CMD+V')
     console.log('pauseCopying:', pauseCopying)
     if (!pauseCopying) {
       clipboard.writeSync('') // Clear the clipboard
       console.log('Clipboard cleared')
+      debugLog('Clipboard cleared')
     }
     return /* dont consume event, let the system do that */ false
   }
